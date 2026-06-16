@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>新生醫專校車智慧站點查詢</title>
+  <meta name="theme-color" content="#0f766e" />
+  <style>
+    :root{
+      --bg:#f4fbfa; --card:#ffffff; --ink:#153334; --muted:#617778;
+      --brand:#0f766e; --brand2:#14b8a6; --line:#d9ece9; --soft:#eaf8f6;
+      --warn:#9a6700; --shadow:0 16px 40px rgba(15,118,110,.12);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC",sans-serif;
+      background:linear-gradient(180deg,#dff7f3 0,#f7fbfb 260px); color:var(--ink);
+    }
+    .wrap{max-width:720px;margin:auto;padding:20px 16px 48px}
+    .hero{
+      background:linear-gradient(135deg,#0f766e,#14b8a6); color:#fff;
+      border-radius:28px;padding:24px 22px;box-shadow:var(--shadow);position:relative;overflow:hidden;
+    }
+    .hero:after{
+      content:"🚌"; position:absolute; right:16px; bottom:-14px; font-size:86px; opacity:.18;
+      transform:rotate(-8deg);
+    }
+    .eyebrow{font-size:13px;font-weight:800;letter-spacing:.08em;opacity:.9}
+    h1{font-size:28px;line-height:1.25;margin:8px 0 8px}
+    .hero p{margin:0;line-height:1.7;font-size:15px;max-width:520px}
+    .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px}.stat{background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.22);border-radius:16px;padding:10px;text-align:center;backdrop-filter:blur(8px)}.stat b{display:block;font-size:18px}.stat span{font-size:11px;opacity:.85}.search-card{
+      margin-top:16px;background:var(--card);border:1px solid var(--line);border-radius:24px;
+      padding:18px;box-shadow:0 10px 28px rgba(17,94,89,.08);
+    }
+    label{display:block;font-weight:800;margin-bottom:8px}
+    .input-row{display:flex;gap:8px}
+    input{
+      width:100%;height:50px;border:1.5px solid #b8d9d5;border-radius:15px;padding:0 14px;
+      font-size:16px;outline:none;background:#fff;
+    }
+    input:focus{border-color:var(--brand2);box-shadow:0 0 0 4px rgba(20,184,166,.12)}
+    button{
+      border:0;border-radius:14px;padding:0 16px;font-weight:800;font-size:15px;cursor:pointer;
+      min-height:46px;
+    }
+    .primary{background:var(--brand);color:#fff;white-space:nowrap}
+    .secondary{background:var(--soft);color:var(--brand);width:100%;margin-top:10px}
+    .chips{display:flex;gap:8px;overflow:auto;margin-top:12px;padding-bottom:2px}
+    .chip{background:#fff;border:1px solid var(--line);color:#436162;min-height:38px;white-space:nowrap}
+    .status{
+      display:none;margin-top:14px;padding:12px 14px;border-radius:14px;background:#fff8dc;color:var(--warn);
+      font-size:14px;line-height:1.6;
+    }
+    .section-head{display:flex;justify-content:space-between;align-items:end;margin:22px 2px 10px}
+    .section-head h2{font-size:20px;margin:0}
+    .section-head span{font-size:13px;color:var(--muted)}
+    .results{display:grid;gap:12px}
+    .stop{
+      background:var(--card);border:1px solid var(--line);border-radius:20px;padding:16px;
+      box-shadow:0 8px 22px rgba(15,118,110,.07);
+    }
+    .stop-top{display:flex;gap:12px;align-items:flex-start}
+    .rank{
+      width:38px;height:38px;border-radius:13px;background:var(--soft);color:var(--brand);
+      display:grid;place-items:center;font-weight:900;flex:0 0 auto
+    }
+    .stop h3{margin:0 0 4px;font-size:18px}
+    .meta{font-size:14px;color:var(--muted);line-height:1.6}
+    .badges{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
+    .badge{font-size:12px;font-weight:800;padding:5px 8px;border-radius:999px;background:#eef8f7;color:#2b6864}
+    .distance{background:#dcfce7;color:#166534}
+    .actions{display:flex;gap:8px;margin-top:14px}
+    .actions a{
+      text-decoration:none;flex:1;text-align:center;border-radius:12px;padding:11px 8px;
+      font-size:14px;font-weight:800;
+    }
+    .nav{background:var(--brand);color:white}
+    .detail{background:var(--soft);color:var(--brand)}
+    .empty{
+      background:#fff;border:1px dashed #b7d8d3;border-radius:20px;padding:28px 18px;text-align:center;
+      color:var(--muted);line-height:1.8;
+    }
+    .note{font-size:12px;color:#789091;line-height:1.7;margin:14px 4px 0}
+    footer{text-align:center;color:#829596;font-size:12px;margin-top:24px}
+    @media(max-width:480px){
+      h1{font-size:24px}
+      .input-row{flex-direction:column}
+      .primary{width:100%}
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="hero">
+      <div class="eyebrow">HSC SCHOOL BUS</div>
+      <h1>新生醫專<br>校車智慧站點查詢</h1>
+      <p>輸入住家地址，快速找出最近的校車站點、上車時間與導航方向。</p>
+    <div class="stats"><div class="stat"><b>70+</b><span>校車路線</span></div><div class="stat"><b>多區</b><span>跨縣市站點</span></div><div class="stat"><b>即時</b><span>距離排序</span></div></div></section>
+
+    <section class="search-card">
+      <label for="address">你住在哪裡？</label>
+      <div class="input-row">
+        <input id="address" placeholder="例如：桃園市龍潭區中正路" autocomplete="street-address" />
+        <button class="primary" onclick="searchAddress()">搜尋站點</button>
+      </div>
+      <button class="secondary" onclick="useLocation()">📍 使用我的目前位置</button>
+      <div class="chips">
+        <button class="chip" onclick="quickSearch('龍潭')">龍潭</button>
+        <button class="chip" onclick="quickSearch('中壢')">中壢</button>
+        <button class="chip" onclick="quickSearch('桃園')">桃園</button>
+        <button class="chip" onclick="quickSearch('楊梅')">楊梅</button>
+        <button class="chip" onclick="quickSearch('新竹')">新竹</button>
+      </div>
+      <div id="status" class="status"></div>
+    </section>
+
+    <div class="section-head">
+      <h2>推薦站點</h2>
+      <span id="resultCount">展示資料 12 站</span>
+    </div>
+    <section id="results" class="results"></section>
+
+    <p class="note">
+      ※ 目前為第一階段展示版，部分站點、時間與座標仍在校對中；正式使用請以學校最新公告為準。
+    </p>
+    <footer>新生醫護管理專科學校｜校車智慧查詢</footer>
+  </main>
+
+<script>
+const stops = [
+  {name:"龍潭國小", area:"桃園市龍潭區", route:"67", time:"07:14", fee:"5,730", note:"龍潭國小校門口公車亭", lat:24.8656, lng:121.2169},
+  {name:"龍潭中正大同路口", area:"桃園市龍潭區", route:"67", time:"07:12", fee:"5,730", note:"中正路與大同路口附近", lat:24.8640, lng:121.2216},
+  {name:"龍潭百年大鎮", area:"桃園市龍潭區", route:"66", time:"07:02", fee:"5,950", note:"百年大鎮社區周邊", lat:24.8787, lng:121.2113},
+  {name:"中壢火車站", area:"桃園市中壢區", route:"31", time:"06:20", fee:"17,610", note:"火車站周邊指定候車點", lat:24.9537, lng:121.2258},
+  {name:"中壢監理站", area:"桃園市中壢區", route:"4", time:"06:36", fee:"11,780", note:"監理站周邊公車停靠區", lat:24.9488, lng:121.2526},
+  {name:"內壢火車站", area:"桃園市中壢區", route:"6", time:"06:32", fee:"11,780", note:"內壢火車站前", lat:24.9727, lng:121.2583},
+  {name:"桃園火車站", area:"桃園市桃園區", route:"17", time:"06:50", fee:"12,860", note:"桃園火車站周邊指定候車點", lat:24.9892, lng:121.3140},
+  {name:"桃園市政府", area:"桃園市桃園區", route:"17", time:"06:51", fee:"13,940", note:"市府周邊公車停靠區", lat:24.9934, lng:121.3010},
+  {name:"楊梅火車站", area:"桃園市楊梅區", route:"48", time:"06:20", fee:"10,700", note:"楊梅火車站前", lat:24.9142, lng:121.1451},
+  {name:"埔心火車站", area:"桃園市楊梅區", route:"52", time:"06:55", fee:"10,700", note:"埔心火車站前", lat:24.9197, lng:121.1837},
+  {name:"新竹火車站", area:"新竹市", route:"31", time:"06:20", fee:"17,610", note:"新竹火車站周邊指定候車點", lat:24.8016, lng:120.9716},
+  {name:"竹北火車站", area:"新竹縣竹北市", route:"34", time:"06:20", fee:"13,940", note:"竹北火車站前", lat:24.8388, lng:121.0095}
+];
+
+const presets = {
+  "龍潭": [24.8647,121.2168],
+  "中壢": [24.9537,121.2258],
+  "桃園": [24.9937,121.3010],
+  "楊梅": [24.9123,121.1459],
+  "新竹": [24.8039,120.9647]
+};
+
+function km(lat1, lon1, lat2, lon2){
+  const R=6371, dLat=(lat2-lat1)*Math.PI/180, dLon=(lon2-lon1)*Math.PI/180;
+  const a=Math.sin(dLat/2)**2+Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)**2;
+  return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+}
+
+function render(list, origin=null){
+  const box=document.getElementById("results");
+  const sorted=[...list].map(s=>({...s,dist:origin?km(origin[0],origin[1],s.lat,s.lng):null}))
+    .sort((a,b)=>(a.dist??999)-(b.dist??999)).slice(0,5);
+
+  if(!sorted.length){
+    box.innerHTML='<div class="empty">目前沒有找到相符站點，請嘗試輸入附近行政區或主要道路。</div>';
+    return;
+  }
+
+  box.innerHTML=sorted.map((s,i)=>`
+    <article class="stop">
+      <div class="stop-top">
+        <div class="rank">${i+1}</div>
+        <div>
+          <h3>${s.name}</h3>
+          <div class="meta">${s.area}<br>${s.note}</div>
+        </div>
+      </div>
+      <div class="badges">
+        ${s.dist!==null?`<span class="badge distance">約 ${s.dist<1?(s.dist*1000).toFixed(0)+' 公尺':s.dist.toFixed(1)+' 公里'}</span>`:''}
+        <span class="badge">路線 ${s.route}</span>
+        <span class="badge">上車 ${s.time}</span>
+        <span class="badge">車資 ${s.fee} 元</span>
+      </div>
+      <div class="actions">
+        <a class="nav" target="_blank" href="https://www.google.com/maps/search/?api=1&query=${s.lat},${s.lng}">開啟導航</a>
+        <a class="detail" href="#" onclick="alert('${s.name}\\n${s.note}\\n路線 ${s.route}｜${s.time} 上車');return false;">站點資訊</a>
+      </div>
+    </article>`).join("");
+  document.getElementById("resultCount").textContent=`顯示最近 ${sorted.length} 站`;
+}
+
+function showStatus(msg){
+  const el=document.getElementById("status");
+  el.style.display="block"; el.textContent=msg;
+}
+
+function quickSearch(area){
+  document.getElementById("address").value=area;
+  render(stops,presets[area]);
+  showStatus(`已用「${area}」市區中心作為展示定位。`);
+}
+
+async function searchAddress(){
+  const q=document.getElementById("address").value.trim();
+  if(!q){showStatus("請先輸入地址或選擇快速地區。");return;}
+  const presetKey=Object.keys(presets).find(k=>q.includes(k));
+  if(presetKey){
+    render(stops,presets[presetKey]);
+    showStatus(`已依「${presetKey}」附近位置排序站點。`);
+    return;
+  }
+  showStatus("正在定位地址…");
+  try{
+    const res=await fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=tw&q=${encodeURIComponent(q)}`,{
+      headers:{"Accept-Language":"zh-TW"}
+    });
+    const data=await res.json();
+    if(!data.length) throw new Error("not found");
+    const origin=[Number(data[0].lat),Number(data[0].lon)];
+    render(stops,origin);
+    showStatus(`已定位：${data[0].display_name}`);
+  }catch(e){
+    showStatus("目前無法精確定位此地址，請改輸入行政區或按「使用我的目前位置」。");
+  }
+}
+
+function useLocation(){
+  if(!navigator.geolocation){showStatus("此瀏覽器不支援定位功能。");return;}
+  showStatus("正在取得目前位置，請允許瀏覽器使用定位…");
+  navigator.geolocation.getCurrentPosition(
+    p=>{render(stops,[p.coords.latitude,p.coords.longitude]);showStatus("已依你目前的位置排序最近站點。");},
+    ()=>showStatus("無法取得位置，請確認已開啟定位權限。"),
+    {enableHighAccuracy:true,timeout:10000}
+  );
+}
+
+render(stops,presets["龍潭"]);
+</script>
+</body>
+</html>
