@@ -50,7 +50,7 @@ window.loadHscRoutes = async function () {
   }
 };
 
-/* 地圖開場動畫與精確站點圖層 */
+/* 地圖開場動畫、精確站點圖層與簡易家長版說明 */
 (function () {
   const style = document.createElement('style');
   style.textContent = `
@@ -60,17 +60,20 @@ window.loadHscRoutes = async function () {
     .hsc-bus{font-size:68px;display:inline-block;animation:hscDrive 1.6s cubic-bezier(.22,.8,.32,1) infinite alternate}
     .hsc-intro h2{margin:10px 0 6px;font-size:25px}.hsc-intro p{margin:0;color:#5c7775;line-height:1.6;font-size:14px}
     .hsc-loader{height:8px;margin-top:18px;border-radius:99px;background:rgba(11,112,103,.12);overflow:hidden}.hsc-loader i{display:block;width:38%;height:100%;border-radius:99px;background:linear-gradient(90deg,#0b7067,#35d3c2);animation:hscLoad 1.25s ease-in-out infinite}
-    .hsc-map-tools{display:flex;gap:8px;flex-wrap:wrap;padding:4px 4px 10px}.hsc-map-btn{border:1px solid rgba(255,255,255,.75);border-radius:14px;padding:9px 12px;background:rgba(255,255,255,.7);color:#0b7067;font-weight:850;backdrop-filter:blur(16px);box-shadow:inset 0 1px 0 #fff,0 8px 22px rgba(16,91,84,.12);cursor:pointer}
-    .hsc-map-status{font-size:12px;color:#607b79;display:flex;align-items:center;padding:0 4px}.hsc-stop-icon{background:transparent;border:0}.hsc-pin{width:30px;height:30px;border-radius:50% 50% 50% 8px;transform:rotate(-45deg);background:linear-gradient(145deg,#0b7067,#29c9b8);border:2px solid white;box-shadow:0 6px 16px rgba(0,82,75,.28);display:grid;place-items:center}.hsc-pin span{transform:rotate(45deg);color:#fff;font-size:10px;font-weight:900}
-    .hsc-popup b{font-size:15px}.hsc-popup .time{display:inline-block;margin:6px 0;padding:4px 7px;border-radius:8px;background:#e9f2ff;color:#245e9f;font-weight:900}.hsc-popup .route{font-weight:850;color:#0b7067}.hsc-popup .addr{font-size:12px;line-height:1.5;color:#5e7473;margin-top:4px}
+    .hsc-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:14px 0 0;padding:10px;border-radius:22px;background:rgba(255,255,255,.58);border:1px solid rgba(255,255,255,.74);backdrop-filter:blur(18px);box-shadow:inset 0 1px 0 #fff,0 12px 30px rgba(18,92,86,.1)}
+    .hsc-step{text-align:center;padding:10px 6px;border-radius:16px;background:rgba(255,255,255,.55);font-weight:850;font-size:13px;color:#315e5a}.hsc-step b{display:block;font-size:20px;color:#0b7067;margin-bottom:3px}
+    .hsc-map-tools{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:4px 4px 10px}.hsc-map-btn{border:1px solid rgba(255,255,255,.75);border-radius:14px;padding:10px 8px;background:rgba(255,255,255,.75);color:#0b7067;font-weight:900;backdrop-filter:blur(16px);box-shadow:inset 0 1px 0 #fff,0 8px 22px rgba(16,91,84,.12);cursor:pointer;font-size:13px}
+    .hsc-map-status{grid-column:1/-1;font-size:13px;color:#4e6d6a;display:flex;align-items:center;padding:5px 4px 0;line-height:1.5}.hsc-stop-icon{background:transparent;border:0}.hsc-pin{width:30px;height:30px;border-radius:50% 50% 50% 8px;transform:rotate(-45deg);background:linear-gradient(145deg,#0b7067,#29c9b8);border:2px solid white;box-shadow:0 6px 16px rgba(0,82,75,.28);display:grid;place-items:center}.hsc-pin span{transform:rotate(45deg);color:#fff;font-size:10px;font-weight:900}
+    .hsc-popup b{font-size:16px}.hsc-popup .time{display:inline-block;margin:7px 0;padding:5px 8px;border-radius:8px;background:#e9f2ff;color:#245e9f;font-weight:900}.hsc-popup .route{font-weight:850;color:#0b7067;line-height:1.6}.hsc-popup .addr{font-size:13px;line-height:1.6;color:#5e7473;margin-top:5px}.hsc-popup-label{font-weight:900;color:#244d49}
     @keyframes hscDrive{from{transform:translateX(-25px) rotate(-3deg)}to{transform:translateX(25px) rotate(3deg)}}@keyframes hscLoad{0%{transform:translateX(-120%)}100%{transform:translateX(360%)}}
+    @media(max-width:560px){.hsc-map-tools{grid-template-columns:1fr}.hsc-map-status{grid-column:auto}.hsc-steps{gap:5px}.hsc-step{font-size:12px;padding:9px 3px}}
     @media(prefers-reduced-motion:reduce){.hsc-bus,.hsc-loader i{animation:none}}
   `;
   document.head.appendChild(style);
 
   const intro = document.createElement('div');
   intro.className = 'hsc-intro';
-  intro.innerHTML = `<div class="hsc-intro-card"><div class="hsc-bus">🚌</div><h2>新生醫專校車智慧地圖</h2><p>正在展開全台服務範圍與校車站點</p><div class="hsc-loader"><i></i></div></div>`;
+  intro.innerHTML = `<div class="hsc-intro-card"><div class="hsc-bus">🚌</div><h2>校車地圖準備中</h2><p>馬上帶您看看校車可以坐到哪裡</p><div class="hsc-loader"><i></i></div></div>`;
   document.body.appendChild(intro);
 
   let exactLayer = null;
@@ -104,7 +107,7 @@ window.loadHscRoutes = async function () {
   }
 
   function popupHtml(stop) {
-    return `<div class="hsc-popup"><b>${stop.name}</b><br><span class="time">${stop.time || '時間未填'}</span><div class="route">車號 ${stop.bus}｜${stop.route || '未命名路線'}｜第 ${stop.order || '—'} 站</div><div class="addr">${stop.area}<br>${stop.address || '候車位置待補'}</div></div>`;
+    return `<div class="hsc-popup"><b>${stop.name}</b><br><span class="time">上車時間：${stop.time || '尚未填寫'}</span><div class="route"><span class="hsc-popup-label">校車：</span>${stop.bus} 號<br><span class="hsc-popup-label">路線：</span>${stop.route || '未命名路線'}<br><span class="hsc-popup-label">第幾站：</span>${stop.order || '—'}</div><div class="addr"><span class="hsc-popup-label">等車地點：</span><br>${stop.area}<br>${stop.address || '候車位置待補'}</div></div>`;
   }
 
   async function loadVisibleStops(forceArea) {
@@ -117,13 +120,46 @@ window.loadHscRoutes = async function () {
     candidates = candidates.slice(0, 24);
     const statusNode = document.querySelector('.hsc-map-status');
     for (let i=0;i<candidates.length;i++) {
-      if (statusNode) statusNode.textContent = `正在定位站點 ${i+1}/${candidates.length}`;
+      if (statusNode) statusNode.textContent = `正在找站點，請稍等一下（${i+1}/${candidates.length}）`;
       const point = await geocodeStop(candidates[i]);
       if (point) L.marker([point.lat,point.lng],{icon:markerIcon(candidates[i].bus),title:candidates[i].name}).addTo(exactLayer).bindPopup(popupHtml(candidates[i]));
       if (!getCache()[candidates[i].id] && !(Number.isFinite(candidates[i].lat)&&Number.isFinite(candidates[i].lng))) await sleep(900);
     }
-    if (statusNode) statusNode.textContent = `已顯示 ${exactLayer.getLayers().length} 個站點；放大或切換區域可更新`;
+    if (statusNode) statusNode.textContent = `地圖上共有 ${exactLayer.getLayers().length} 個站點，點一下圖示就能看時間和地點。`;
     loading = false;
+  }
+
+  function simplifyPageWords() {
+    const heroTitle = document.querySelector('.hero h1');
+    const heroText = document.querySelector('.hero p');
+    const searchTitle = document.querySelector('.searchTitle');
+    const hint = document.querySelector('.hint');
+    const searchButton = document.querySelector('.searchRow .primary');
+    const locateButton = document.querySelector('.locate');
+    const tabs = document.querySelectorAll('.tab');
+    const headings = document.querySelectorAll('.head h2');
+    const footer = document.querySelector('footer');
+    if(heroTitle) heroTitle.innerHTML='查校車，<br>三個步驟就完成';
+    if(heroText) heroText.textContent='輸入住家附近的地址或地標，就能查看附近有哪些校車站點。';
+    if(searchTitle) searchTitle.textContent='您住在哪裡？';
+    if(hint) hint.textContent='可輸入住家地址，也可以輸入附近有名的地方，例如：藝文特區、台茂、龍潭大池。';
+    if(searchButton) searchButton.textContent='幫我找校車';
+    if(locateButton) locateButton.textContent='📍 用我現在的位置';
+    if(tabs[0]) tabs[0].textContent='看地圖';
+    if(tabs[1]) tabs[1].textContent='附近站點';
+    if(tabs[2]) tabs[2].textContent='全部路線';
+    if(headings[0]) headings[0].textContent='校車可以坐到哪裡？';
+    if(headings[1]) headings[1].textContent='附近可以搭車的地方';
+    if(headings[2]) headings[2].textContent='所有校車站點';
+    if(footer) footer.textContent='請提早 10 分鐘到等車地點。若校車時間有更動，請以學校最新通知為準。';
+
+    const searchCard=document.querySelector('.searchCard');
+    if(searchCard && !document.querySelector('.hsc-steps')){
+      const steps=document.createElement('div');
+      steps.className='hsc-steps';
+      steps.innerHTML='<div class="hsc-step"><b>1</b>輸入地點</div><div class="hsc-step"><b>2</b>查看地圖</div><div class="hsc-step"><b>3</b>點站點看時間</div>';
+      searchCard.appendChild(steps);
+    }
   }
 
   function addMapTools() {
@@ -132,7 +168,7 @@ window.loadHscRoutes = async function () {
     if (!wrap || !mapNode || wrap.querySelector('.hsc-map-tools')) return;
     const tools = document.createElement('div');
     tools.className = 'hsc-map-tools';
-    tools.innerHTML = `<button class="hsc-map-btn" data-action="tour">▶ 重新播放導覽</button><button class="hsc-map-btn" data-action="exact">📍 顯示目前區域確切站點</button><button class="hsc-map-btn" data-action="overview">🌏 返回全台分布</button><span class="hsc-map-status">縮放地圖後，可載入目前區域站點</span>`;
+    tools.innerHTML = `<button class="hsc-map-btn" data-action="tour">▶ 再看一次動畫</button><button class="hsc-map-btn" data-action="exact">📍 顯示這附近的站</button><button class="hsc-map-btn" data-action="overview">🌏 看全部地區</button><span class="hsc-map-status">請先把地圖放大，再按「顯示這附近的站」。</span>`;
     wrap.insertBefore(tools,mapNode);
     tools.addEventListener('click',event=>{
       const action=event.target?.dataset?.action;
@@ -158,14 +194,15 @@ window.loadHscRoutes = async function () {
   function boot() {
     const ready = typeof map !== 'undefined' && map && typeof stops !== 'undefined' && Array.isArray(stops) && stops.length;
     if (!ready) return setTimeout(boot,250);
+    simplifyPageWords();
     addMapTools();
     playTour();
-    setTimeout(()=>intro.classList.add('hide'),2600);
-    setTimeout(()=>intro.remove(),3500);
+    setTimeout(()=>intro.classList.add('hide'),2400);
+    setTimeout(()=>intro.remove(),3300);
     map.on('zoomend moveend',()=>{
       if (map.getZoom() >= 12) {
         const node=document.querySelector('.hsc-map-status');
-        if(node) node.textContent='已放大，可按「顯示目前區域確切站點」';
+        if(node) node.textContent='已經放大了，請按「顯示這附近的站」。';
       }
     });
   }
