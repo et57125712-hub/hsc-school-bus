@@ -191,11 +191,34 @@ window.loadHscRoutes = async function () {
     await loadVisibleStops(area);
   };
 
+  function fixTopButton() {
+    window.goToPageTop = function () {
+      try {
+        document.documentElement.scrollTo({top:0,behavior:'smooth'});
+        document.body.scrollTo({top:0,behavior:'smooth'});
+        window.scrollTo({top:0,behavior:'smooth'});
+      } catch (_) {
+        document.documentElement.scrollTop = 0;
+        document.body.scrollTop = 0;
+      }
+    };
+    document.querySelectorAll('.bottom button').forEach(button=>{
+      if(button.textContent.includes('回到頂端')){
+        button.removeAttribute('onclick');
+        button.addEventListener('click',event=>{
+          event.preventDefault();
+          window.goToPageTop();
+        });
+      }
+    });
+  }
+
   function boot() {
     const ready = typeof map !== 'undefined' && map && typeof stops !== 'undefined' && Array.isArray(stops) && stops.length;
     if (!ready) return setTimeout(boot,250);
     simplifyPageWords();
     addMapTools();
+    fixTopButton();
     playTour();
     setTimeout(()=>intro.classList.add('hide'),2400);
     setTimeout(()=>intro.remove(),3300);
